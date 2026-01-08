@@ -1,6 +1,6 @@
 # api.py
 
-from database import create_tables, crear_tabla_usuarios
+from database import create_tables, crear_tabla_usuarios, fetch_all
 
 # Crear tablas al iniciar la API
 create_tables()
@@ -68,12 +68,12 @@ class MovimientoFinanzas(BaseModel):
 def home():
     return {"mensaje": "API de Bodega funcionando"}
 
+# ---------------------------------------
 # LOGIN
-from fastapi import HTTPException
-from passlib.context import CryptContext
-from database import fetch_all
+# ---------------------------------------
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import hashlib
+from fastapi import HTTPException
 
 class LoginData(BaseModel):
     usuario: str
@@ -81,14 +81,22 @@ class LoginData(BaseModel):
 
 @app.post("/login")
 def login(data: LoginData):
-    rows = fetch_all("SELECT password_hash, rol FROM usuarios WHERE usuario = ?", (data.usuario,))
-    
+    # Buscar usuario en la base
+    rows = fetch_all(
+        "SELECT password_hash, rol FROM usuarios WHERE usuario = ?",
+        (data.usuario,)
+    )
+
     if not rows:
         raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
 
-    password_hash, rol = rows[0]
+    password_hash_db, rol = rows[0]
 
-    if not pwd_context.verify(data.password, password_hash):
+    # Hash del password ingresado
+    password_hash_input = hashlib.sha256(data.password.encode()).hexdigest()
+
+    # Comparar hashes
+    if password_hash_input != password_hash_db:
         raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
 
     return {"mensaje": "ok", "rol": rol}
