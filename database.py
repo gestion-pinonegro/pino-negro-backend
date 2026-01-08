@@ -105,7 +105,20 @@ def create_tables():
 
     conn.commit()
     conn.close()
-    print("Tablas creadas correctamente.")
+    print("Tablas principales creadas correctamente.")
+
+# ---------------------------------------
+# Crear tabla de usuarios
+# ---------------------------------------
+def crear_tabla_usuarios():
+    run_query("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            rol TEXT NOT NULL
+        )
+    """)
 
 # ---------------------------------------
 # Función genérica para ejecutar queries
@@ -128,7 +141,10 @@ def fetch_all(query, params=()):
     conn.close()
     return rows
 
-
+# ---------------------------------------
 # Ejecutar creación de tablas si se corre este archivo directamente
+# ---------------------------------------
 if __name__ == "__main__":
     create_tables()
+    crear_tabla_usuarios()
+    print("Todas las tablas creadas correctamente.")
