@@ -1,5 +1,11 @@
 # api.py
 
+from database import create_tables, crear_tabla_usuarios
+
+# Crear tablas al iniciar la API
+create_tables()
+crear_tabla_usuarios()
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 
