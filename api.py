@@ -68,6 +68,31 @@ class MovimientoFinanzas(BaseModel):
 def home():
     return {"mensaje": "API de Bodega funcionando"}
 
+# LOGIN
+from fastapi import HTTPException
+from passlib.context import CryptContext
+from database import fetch_all
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class LoginData(BaseModel):
+    usuario: str
+    password: str
+
+@app.post("/login")
+def login(data: LoginData):
+    rows = fetch_all("SELECT password_hash, rol FROM usuarios WHERE usuario = ?", (data.usuario,))
+    
+    if not rows:
+        raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
+
+    password_hash, rol = rows[0]
+
+    if not pwd_context.verify(data.password, password_hash):
+        raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
+
+    return {"mensaje": "ok", "rol": rol}
+
 # TRAZABILIDAD
 @app.post("/trabajos")
 def crear_trabajo(data: Trabajo):
