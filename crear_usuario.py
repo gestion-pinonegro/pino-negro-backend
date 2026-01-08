@@ -1,5 +1,9 @@
 import hashlib
-from database import run_query
+from database import run_query, crear_tabla_usuarios, create_tables
+
+# Crear tablas si no existen
+create_tables()
+crear_tabla_usuarios()
 
 usuario = "Franco.guillen"
 password = "Illescas2147"
