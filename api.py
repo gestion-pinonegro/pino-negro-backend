@@ -16,11 +16,23 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # luego lo restringimos si querés
+    allow_origins=[
+        "https://pino-negro-app.onrender.com",
+        "https://pino-negro-api.onrender.com",
+        "*"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# ---------------------------
+# HANDLER PARA PRE-FLIGHT OPTIONS
+# ---------------------------
+
+@app.options("/{rest_of_path:path}")
+def preflight_handler(rest_of_path: str):
+    return {}
 
 # ---------------------------
 # IMPORTS QUE EJECUTAN CÓDIGO (DEBEN IR DESPUÉS DEL MIDDLEWARE)
