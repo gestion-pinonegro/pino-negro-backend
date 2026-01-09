@@ -1,36 +1,40 @@
 # api.py
 
-from database import create_tables, crear_tabla_usuarios, fetch_all
-
-# Crear tablas al iniciar la API
-create_tables()
-crear_tabla_usuarios()
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from trazabilidad_service import TrazabilidadService
-from inventario_service import InventarioService
-from blend_service import BlendService
-from finanzas_service import FinanzasService
-
+# Crear app primero
 app = FastAPI(
     title="API de Gestión de Bodega - Pino Negro",
     version="1.0.0"
 )
 
 # ---------------------------
-# CORS (para permitir frontend en otro dominio)
+# CORS (DEBE IR JUSTO DESPUÉS DE app = FastAPI)
 # ---------------------------
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Podés restringirlo luego a tu dominio
+    allow_origins=["*"],  # luego lo restringimos si querés
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------
+# IMPORTS QUE EJECUTAN CÓDIGO (DEBEN IR DESPUÉS DEL MIDDLEWARE)
+# ---------------------------
+
+from database import create_tables, crear_tabla_usuarios, fetch_all
+from trazabilidad_service import TrazabilidadService
+from inventario_service import InventarioService
+from blend_service import BlendService
+from finanzas_service import FinanzasService
+
+# Crear tablas al iniciar la API
+create_tables()
+crear_tabla_usuarios()
 
 # Servicios
 traz = TrazabilidadService()
@@ -82,10 +86,7 @@ class MovimientoFinanzas(BaseModel):
 def home():
     return {"mensaje": "API de Bodega funcionando"}
 
-# ---------------------------------------
 # LOGIN
-# ---------------------------------------
-
 import hashlib
 
 class LoginData(BaseModel):
