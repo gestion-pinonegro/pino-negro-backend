@@ -45,8 +45,9 @@ from blend_service import BlendService
 from finanzas_service import FinanzasService
 
 # Crear tablas al iniciar la API
-create_tables()
-crear_tabla_usuarios()
+# ⚠️ IMPORTANTE: Comentado para evitar bloquear el preflight OPTIONS
+# create_tables()
+# crear_tabla_usuarios()
 
 # Servicios
 traz = TrazabilidadService()
