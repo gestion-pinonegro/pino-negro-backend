@@ -6,7 +6,8 @@ from database import create_tables, crear_tabla_usuarios, fetch_all
 create_tables()
 crear_tabla_usuarios()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from trazabilidad_service import TrazabilidadService
@@ -19,6 +20,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# ---------------------------
+# CORS (para permitir frontend en otro dominio)
+# ---------------------------
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Podés restringirlo luego a tu dominio
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Servicios
 traz = TrazabilidadService()
 inv = InventarioService()
 blend = BlendService()
@@ -73,7 +87,6 @@ def home():
 # ---------------------------------------
 
 import hashlib
-from fastapi import HTTPException
 
 class LoginData(BaseModel):
     usuario: str
@@ -81,7 +94,6 @@ class LoginData(BaseModel):
 
 @app.post("/login")
 def login(data: LoginData):
-    # Buscar usuario en la base
     rows = fetch_all(
         "SELECT password_hash, rol FROM usuarios WHERE usuario = ?",
         (data.usuario,)
@@ -91,11 +103,8 @@ def login(data: LoginData):
         raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
 
     password_hash_db, rol = rows[0]
-
-    # Hash del password ingresado
     password_hash_input = hashlib.sha256(data.password.encode()).hexdigest()
 
-    # Comparar hashes
     if password_hash_input != password_hash_db:
         raise HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
 
